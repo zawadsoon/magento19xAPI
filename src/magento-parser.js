@@ -72,6 +72,7 @@ XMLParser.prototype.parse = function (xml) {
         alternateTextNode: true
     });
 
+    //TODO consider to remove xsi:type
     return this.flatten(result['SOAP-ENV:Envelope']['SOAP-ENV:Body']);
 };
 

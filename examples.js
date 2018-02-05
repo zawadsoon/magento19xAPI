@@ -11,7 +11,22 @@ let magento = new Magento19xAPI (apiUrl, headers);
 
 magento.login(username, apiKey).then((sessionId) => {
     //Session is also stored in object property sessionId
-    console.log(sessionId);
-}).catch((error) => {
-    console.log(error);
+    console.log('SessionId: ' + sessionId);
+
+    //Fetching shopping cart Id, no parameters needed.
+    //If not passed session will be retrieved from object sessionId property.
+    //storeId is optional
+    return magento.shoppingCartCreate();
+}).then((quoteId) => {
+    //retrieving result of request (chaining promises)
+    console.log('QuoteId: ' + quoteId);
+
+    //Shopping cart info
+    magento.shoppingCartInfo(null, quoteId, null).then((result) => {
+        console.log('Cart info: ', result);
+    }).catch((error) => {
+        console.error(error);
+    })
+}).then().catch((error) => {
+    console.error(error);
 });
