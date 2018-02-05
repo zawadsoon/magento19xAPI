@@ -1,0 +1,30 @@
+{
+  "name": "magento19xapi",
+  "version": "0.1.0",
+  "description": "JS connector for magento API",
+  "main": "src/magento19xapi.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zawadsoon/magento19xAPI.git"
+  },
+  "keywords": [
+    "magento",
+    "APIv2",
+    "javascript",
+    "reactnative"
+  ],
+  "author": "Marcin Zawada",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zawadsoon/magento19xAPI/issues"
+  },
+  "homepage": "https://github.com/zawadsoon/magento19xAPI#readme",
+  "devDependencies": {},
+  "dependencies": {
+    "node-fetch": "^2.0.0",
+    "xml2json": "^0.11.0"
+  }
+}
