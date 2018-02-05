@@ -13,6 +13,11 @@ function MissingApiHostException () {
     this.name = "MissingApiHostException";
 }
 
+function MissingArgumentException (argument) {
+    this.message = "Argument " + argument + " required";
+    this.name = "MissingArgumentException";
+}
+
 module.exports = {
     MissingSessionIdException: MissingSessionIdException,
     MissingApiUrlException: MissingApiUrlException,
