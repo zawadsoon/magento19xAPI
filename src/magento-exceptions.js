@@ -18,8 +18,15 @@ function MissingArgumentException (argument) {
     this.name = "MissingArgumentException";
 }
 
+function MagentoFaultException (faultCode, faultString) {
+    this.message = "Magento returns error. Faultcode: " + faultCode + ", faultstring: " + faultString;
+    this.name = "MagentoFaultException";
+}
+
 module.exports = {
     MissingSessionIdException: MissingSessionIdException,
     MissingApiUrlException: MissingApiUrlException,
     MissingApiHostException: MissingApiHostException,
+    MissingArgumentException: MissingArgumentException,
+    MagentoFaultException: MagentoFaultException
 };
