@@ -45,7 +45,7 @@ function XMLParser (xmlValueKey) {
             try {
                 if (typeof obj[key] === 'object')
                     newObj[key] = this.flatten(obj[key]);
-                else
+                else if(key === this.xmlValueKey)
                     newObj[key] = obj[key];
             } catch (exception) {
                 console.error(exception, key, obj[key]);

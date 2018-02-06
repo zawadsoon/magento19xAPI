@@ -13,8 +13,27 @@ function MissingApiHostException () {
     this.name = "MissingApiHostException";
 }
 
+function MissingArgumentException (argument) {
+    this.message = "Argument " + argument + " required";
+    this.name = "MissingArgumentException";
+}
+
+function MagentoFaultException (faultCode, faultString) {
+    this.message = "Magento returns error. Faultcode: " + faultCode + ", faultstring: " + faultString;
+    this.name = "MagentoFaultException";
+}
+
+function MissingMandatoryArgumentException (argument, method) {
+    this.message = "Missing mandatory" + argument + " argument in " + method + " method!";
+    this.name = "MissingMandatoryArgumentException";
+}
+
 module.exports = {
     MissingSessionIdException: MissingSessionIdException,
     MissingApiUrlException: MissingApiUrlException,
     MissingApiHostException: MissingApiHostException,
+    MissingArgumentException: MissingArgumentException,
+    MagentoFaultException: MagentoFaultException,
+    MissingMandatoryArgumentException: MissingMandatoryArgumentException
+
 };

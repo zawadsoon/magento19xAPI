@@ -9,9 +9,11 @@ const fetch = require('node-fetch');
  * @param headers - Additional headers added to request (remember 'Host' property is required)
  * @param middleware - Addidtional function that will be called before response will be passed to parse.
  * Function takes as argument request response and should return this response or throw error.
+ * @param customMethods - Defines user custom methods, have to be like this in resources
  * @constructor
  */
-function Magento19xAPI (apiUrl, headers, middleware) {
+function Magento19xAPI (apiUrl, headers, middleware, customMethods) {
+    let self = this;
 
     if (typeof apiUrl === 'undefined')
         throw new Exception.MissingApiUrlException();
@@ -36,6 +38,59 @@ function Magento19xAPI (apiUrl, headers, middleware) {
 
     let parser = new XMLParser();
     this.parse = (xml) => parser.parse(xml);
+
+    this.findNested = function (obj, nestingArray, index) {
+        if (nestingArray.length === 0) return obj;
+        index = (typeof index === 'undefined') ? 0 : index;
+        return (index ===  nestingArray.length - 1) ? obj[nestingArray[index]] :
+            self.findNested(obj[nestingArray[index]], nestingArray, ++index);
+    };
+
+    //Loading resources
+    let resources = {
+        catalog_category: require('./resources/catalog/catalog_category'),
+        cart: require('./resources/checkout/cart'),
+        custom: customMethods,
+    };
+
+    //Iterate over methods in resources
+    for (let resource in resources) {
+        for (let method in resources[resource]) {
+            if (!resources[resource].hasOwnProperty(method)) continue;
+            let details = resources[resource][method];
+
+            /**
+             * Generic prototyped method from resources
+             * @param {array} args - Argument passed to method {key: value} object
+             */
+            this[method] = function(args) {
+                if (typeof args === 'undefined')
+                    args = [];
+
+                if (typeof details.mandatory['sessionId'] !== 'undefined' && typeof args['sessionId'] === 'undefined')
+                    args['sessionId'] = self.sessionId;
+
+                //Test mandatory arguments
+                for (let name in details.mandatory) {
+                    if (typeof args[name] === 'undefined')
+                        throw new Exception.MissingMandatoryArgumentException(name, method);
+                }
+
+                let arguments = {...details.mandatory, ...details.optionals};
+                let xmlItems = [];
+
+                //Iterate over all argument and create proper xml type if argument exist
+                for (let name in arguments) {
+                    if (typeof args[name] !== 'undefined')
+                        xmlItems.push(XML.parts.variable[arguments[name]](name, args[name]));
+                }
+
+                return this.post(XML.build(method, xmlItems)).then(function (result) {
+                    return(self.findNested(result, details.origin));
+                });
+            };
+        }
+    }
 }
 
 /**
@@ -44,54 +99,41 @@ function Magento19xAPI (apiUrl, headers, middleware) {
  * @return {Promise} - fetch result
  */
 Magento19xAPI.prototype.post = function (body) {
+    let self = this;
+
     return fetch(this.apiUrl, {
         method: 'POST',
         headers: {...this.headers, 'Content-Length': body.length},
         body: body
-    }).then(response => response.text()).then(this.middleware);
-};
+    }).then((response) => {
+        return (self.middleware(response)).text();
+    }).then((body) => {
+        let result = self.parse(body);
 
-/**
- * Check if session parameter is undefined.
- * If is undefined then tries to get session from class sessionId property.
- */
-Magento19xAPI.prototype.checkSessionId = function (sessionId) {
-    if (typeof sessionId !== 'undefined')
-        return sessionId;
+        //TODO catch special errors e.g Session Expire
+        //Before pass data, check if magento return fault.
+        if (typeof result['SOAP-ENV:Fault'] !== 'undefined')
+            throw new Exception.MagentoFaultException(result['SOAP-ENV:Fault'].faultcode, result['SOAP-ENV:Fault'].faultstring);
 
-    if (this.sessionId !== null)
-        return this.sessionId;
-
-    throw new Exception.MissingSessionIdException();
-};
-
-/**
- * Allows you to create an empty shopping cart.
- * @param sessionId {number} - Session ID
- * @param storeId {number} - Store view ID or code (optional)
- * @returns {number} - ID of the created empty shopping cart
- */
-Magento19xAPI.prototype.shoppingCartCreate = function (sessionId, storeId) {
-    sessionId = this.checkSessionId (sessionId);
+        return result;
+    });
 };
 
 /**
  * Start the API session, return the session ID, and authorize the API user.
  * @param apiUser
  * @param apiKey
- * @return {Promise} - Session ID
+ * @return {Promise} - resolve(sessionId), Session ID
  */
 Magento19xAPI.prototype.login = function (apiUser, apiKey) {
     let self = this;
-    let body = XML.build(
-        'login',
-        XML.parts.variable.string('username', apiUser) +
+    let body = XML.build('login', [
+        XML.parts.variable.string('username', apiUser),
         XML.parts.variable.string('apiKey', apiKey)
-    );
+    ]);
 
-    return this.post(body).then(function (body) {
-        return(this.sessionId = self.parse(body)['ns1:loginResponse'].loginReturn);
-    });
+    //Remembering sessionId for future use
+    return this.post(body).then(result => self.sessionId = result['ns1:loginResponse'].loginReturn);
 };
 
 module.exports = Magento19xAPI;
