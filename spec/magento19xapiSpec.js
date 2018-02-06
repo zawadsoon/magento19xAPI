@@ -40,4 +40,29 @@ describe("Test if can call API methods", function() {
         });
 
     });
+
+    describe("Category", function() {
+
+        it("catalogCategoryLevel should return object", function (done) {
+            magento.catalogCategoryLevel().then((categories) => {
+                expect(typeof categories).toBe('object');
+                done();
+            });
+        });
+
+        it("catalogCategoryInfo should return object", function (done) {
+            magento.catalogCategoryInfo({categoryId: 2}).then((category) => {
+                expect(typeof category).toBe('object');
+                done();
+            });
+        });
+
+        it("catalogCategoryAssignedProducts should return object", function (done) {
+            magento.catalogCategoryAssignedProducts({categoryId: 8}).then((assignedProducts) => {
+                expect(typeof assignedProducts).toBe('object');
+                done();
+            });
+        });
+
+    });
 });

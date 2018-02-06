@@ -76,13 +76,13 @@ function Magento19xAPI (apiUrl, headers, middleware, customMethods) {
                         throw new Exception.MissingMandatoryArgumentException(name, method);
                 }
 
-                let arguments = {...details.mandatory, ...details.optionals};
+                let allArgs = {...details.mandatory, ...details.optionals};
                 let xmlItems = [];
 
                 //Iterate over all argument and create proper xml type if argument exist
-                for (let name in arguments) {
+                for (let name in allArgs) {
                     if (typeof args[name] !== 'undefined')
-                        xmlItems.push(XML.parts.variable[arguments[name]](name, args[name]));
+                        xmlItems.push(XML.parts.variable[allArgs[name]](name, args[name]));
                 }
 
                 return this.post(XML.build(method, xmlItems)).then(function (result) {
