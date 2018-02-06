@@ -14,6 +14,9 @@ const XMLParse = require("./magento-parser");
 function Magento19xAPI (apiUrl, headers, middleware, customMethods) {
     let self = this;
 
+    //for debug purposes
+    this.lastXML = '';
+
     if (typeof apiUrl === 'undefined')
         throw new Exception.MissingApiUrlException();
 
@@ -45,7 +48,9 @@ function Magento19xAPI (apiUrl, headers, middleware, customMethods) {
     //Loading resources
     let resources = {
         catalog_category: require('./resources/catalog/catalog_category'),
-        cart: require('./resources/checkout/cart'),
+        catalog_product: require('./resources/catalog/catalog_product'),
+        catalog_product_attribute_media: require('./resources/catalog/catalog_product_attribute_media'),
+        checkout_cart: require('./resources/checkout/cart'),
         custom: customMethods,
     };
 
@@ -81,7 +86,7 @@ function Magento19xAPI (apiUrl, headers, middleware, customMethods) {
                         xmlItems.push(XML.parts.variable[allArgs[name]](name, args[name]));
                 }
 
-                return this.post(XML.build(method, xmlItems)).then(function (result) {
+                return this.post(self.lastXML = XML.build(method, xmlItems)).then(function (result) {
                     return(self.findNested(result, details.origin));
                 });
             };

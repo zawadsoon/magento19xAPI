@@ -39,6 +39,9 @@ const parts = {
         int: (name, value) => {
             if (typeof value === 'undefined' || value === null) return '';
             return '<' + name + ' xsi:type="xsd:int">' + value + '</' + name + '>';
+        },
+        custom: (name, xml) => {
+            return xml;
         }
     },
 
