@@ -1,10 +1,10 @@
 {
   "name": "magento19xapi",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "JS connector for magento API",
   "main": "src/magento19xapi.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jasmine"
   },
   "repository": {
     "type": "git",
@@ -22,7 +22,9 @@
     "url": "https://github.com/zawadsoon/magento19xAPI/issues"
   },
   "homepage": "https://github.com/zawadsoon/magento19xAPI#readme",
-  "devDependencies": {},
+  "devDependencies": {
+    "jasmine": "^2.9.0"
+  },
   "dependencies": {
     "node-fetch": "^2.0.0",
     "xml2json": "^0.11.0"
