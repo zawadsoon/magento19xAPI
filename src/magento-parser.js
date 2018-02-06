@@ -1,4 +1,4 @@
-const Parser = require('xml2json');
+const Parser = require('react-native-xml2js');
 
 /**
  * Wraps parser library and additionally flatten response.
