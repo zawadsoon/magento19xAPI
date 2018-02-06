@@ -51,7 +51,7 @@ const parts = {
 
 /**
  * Helper function that puts your XML into common header/body
- * @param customXMLString {string} - your custom xml
+ * @param customXMLArray {array} - your custom xml
  * @param method {string} - name of called method in SOAP API
  * @return {string} + full XML request
  */

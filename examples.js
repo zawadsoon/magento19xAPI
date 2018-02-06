@@ -15,8 +15,8 @@ magento.login(config.username, config.apiKey).then((sessionId) => {
     console.log('quoteId: ', quoteId);
 
     //Shopping cart info
-    magento.shoppingCartInfo({'quoteId': quoteId}).then((result) => {
-        console.log('Cart info: ', result);
+    magento.shoppingCartLicense({'quoteId': quoteId}).then((result) => {
+        console.log('Cart: ', result);
     }).catch((error) => {
         console.error(error);
     })
