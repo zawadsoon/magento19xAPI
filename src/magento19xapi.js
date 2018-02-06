@@ -1,6 +1,6 @@
 const Exception = require("./magento-exceptions");
 const XML = require("./magento-xml");
-const XMLParser = require("./magento-parser");
+const XMLParse = require("./magento-parser");
 const fetch = require('node-fetch');
 
 /**
@@ -35,9 +35,6 @@ function Magento19xAPI (apiUrl, headers, middleware, customMethods) {
         'SOAPAction': "urn:Mage_Api_Model_Server_V2_HandlerAction",
         ...headers
     };
-
-    let parser = new XMLParser();
-    this.parse = (xml) => parser.parse(xml);
 
     this.findNested = function (obj, nestingArray, index) {
         if (nestingArray.length === 0) return obj;
@@ -105,11 +102,9 @@ Magento19xAPI.prototype.post = function (body) {
         method: 'POST',
         headers: {...this.headers, 'Content-Length': body.length},
         body: body
-    }).then((response) => {
-        return (self.middleware(response)).text();
-    }).then((body) => {
-        let result = self.parse(body);
-
+    }).then((response) => self.middleware(response).text())
+        .then((body) => XMLParse(body))
+        .then((result) => {
         //TODO catch special errors e.g Session Expire
         //Before pass data, check if magento return fault.
         if (typeof result['SOAP-ENV:Fault'] !== 'undefined')

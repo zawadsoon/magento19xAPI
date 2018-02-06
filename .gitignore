@@ -65,3 +65,5 @@ typings/
 config\.js
 
 index\.php
+
+package-lock\.json

@@ -1,8 +1,8 @@
 {
   "name": "magento19xapi",
-  "version": "0.3.0",
+  "version": "0.3.2",
   "description": "JS connector for magento API",
-  "main": "src/magento19xapi.js",
+  "main": "./src/magento19xapi.js",
   "scripts": {
     "test": "jasmine"
   },
@@ -23,10 +23,10 @@
   },
   "homepage": "https://github.com/zawadsoon/magento19xAPI#readme",
   "devDependencies": {
-    "jasmine": "^2.9.0"
+    "jasmine": "^2.99.0",
+    "node-fetch": "^2.0.0"
   },
   "dependencies": {
-    "node-fetch": "^2.0.0",
-    "xml2json": "^0.11.0"
+    "react-native-xml2js": "^1.0.3"
   }
 }
