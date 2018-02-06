@@ -5,3 +5,5 @@ connector that fetch data from Magento 1.9.x SOAP API.
 This implementation do not use any XML builder, there are parts of XML hidden in files (performance + flexibility).
 # TODO
 fix description
+# Examples
+If you have to run examples and test you have to move `config.example.js` to `example.js` and fill data.
