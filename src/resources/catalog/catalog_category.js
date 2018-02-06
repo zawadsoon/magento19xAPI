@@ -41,4 +41,18 @@ module.exports = catalog_category = {
         },
         origin: ['ns1:catalogCategoryInfoResponse', 'info']
     },
+
+    /**
+     * Retrieve the list of products assigned to a required category.
+     * @param {string} sessionId - Session ID
+     * @param {int} categoryId - ID of the required category
+     */
+    catalogCategoryAssignedProducts: {
+        mandatory: {
+            'sessionId': 'string',
+            'categoryId': 'int',
+        },
+        optionals: {},
+        origin: ['ns1:catalogCategoryAssignedProductsResponse', 'result', 'item']
+    },
 };
