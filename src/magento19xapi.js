@@ -9,9 +9,11 @@ const fetch = require('node-fetch');
  * @param headers - Additional headers added to request (remember 'Host' property is required)
  * @param middleware - Addidtional function that will be called before response will be passed to parse.
  * Function takes as argument request response and should return this response or throw error.
+ * @param customMethods - Defines user custom methods, have to be like this in resources
  * @constructor
  */
-function Magento19xAPI (apiUrl, headers, middleware) {
+function Magento19xAPI (apiUrl, headers, middleware, customMethods) {
+    let self = this;
 
     if (typeof apiUrl === 'undefined')
         throw new Exception.MissingApiUrlException();
@@ -36,6 +38,59 @@ function Magento19xAPI (apiUrl, headers, middleware) {
 
     let parser = new XMLParser();
     this.parse = (xml) => parser.parse(xml);
+
+    this.findNested = function (obj, nestingArray, index) {
+        if (nestingArray.length === 0) return obj;
+        index = (typeof index === 'undefined') ? 0 : index;
+        return (index ===  nestingArray.length - 1) ? obj[nestingArray[index]] :
+            self.findNested(obj[nestingArray[index]], nestingArray, ++index);
+    };
+
+    //Loading resources
+    let resources = {
+        catalog_category: require('./resources/catalog/catalog_category'),
+        cart: require('./resources/checkout/cart'),
+        custom: customMethods,
+    };
+
+    //Iterate over methods in resources
+    for (let resource in resources) {
+        for (let method in resources[resource]) {
+            if (!resources[resource].hasOwnProperty(method)) continue;
+            let details = resources[resource][method];
+
+            /**
+             * Generic prototyped method from resources
+             * @param {array} args - Argument passed to method {key: value} object
+             */
+            this[method] = function(args) {
+                if (typeof args === 'undefined')
+                    args = [];
+
+                if (typeof details.mandatory['sessionId'] !== 'undefined' && typeof args['sessionId'] === 'undefined')
+                    args['sessionId'] = self.sessionId;
+
+                //Test mandatory arguments
+                for (let name in details.mandatory) {
+                    if (typeof args[name] === 'undefined')
+                        throw new Exception.MissingMandatoryArgumentException(name, method);
+                }
+
+                let arguments = {...details.mandatory, ...details.optionals};
+                let xmlItems = [];
+
+                //Iterate over all argument and create proper xml type if argument exist
+                for (let name in arguments) {
+                    if (typeof args[name] !== 'undefined')
+                        xmlItems.push(XML.parts.variable[arguments[name]](name, args[name]));
+                }
+
+                return this.post(XML.build(method, xmlItems)).then(function (result) {
+                    return(self.findNested(result, details.origin));
+                });
+            };
+        }
+    }
 }
 
 /**
@@ -62,83 +117,6 @@ Magento19xAPI.prototype.post = function (body) {
 
         return result;
     });
-};
-
-/**
- * Check if session parameter is undefined.
- * If is undefined then tries to get session from class sessionId property.
- */
-Magento19xAPI.prototype.checkSessionId = function (sessionId) {
-    if (typeof sessionId !== 'undefined' && sessionId !== null)
-        return sessionId;
-
-    if (this.sessionId !== null)
-        return this.sessionId;
-
-    throw new Exception.MissingSessionIdException();
-};
-
-/**
- * Allows you to create an empty shopping cart.
- * @param sessionId {number} - Session ID
- * @param storeId {number} - Store view ID or code (optional)
- * @returns {Promise} - resolev(quoteId), ID of the created empty shopping cart
- */
-Magento19xAPI.prototype.shoppingCartCreate = function (sessionId, storeId) {
-    let body = XML.build('shoppingCartCreate', [
-        XML.parts.variable.string('sessionId', this.checkSessionId (sessionId)),
-        XML.parts.variable.string('storeId', storeId)
-    ]);
-
-    return this.post(body).then(function (result) {
-        return(result['ns1:shoppingCartCreateResponse'].quoteId);
-    });
-};
-
-/**
- * Allows you to create an order from a shopping cart (quote).
- * Before placing the order, you need to add the customer, customer address, shipping and payment methods.
- * @param sessionId {string} - Session ID
- * @param quoteId {int} - Shopping Cart ID (quote ID)
- * @param storeId {string} - Store view ID or code (optional)
- * @param licenses {ArrayOfString} - Website license ID (optional)
- * @returns {Promise} - resolve(string), Result of creating an order
- */
-Magento19xAPI.prototype.shoppingCartOrder = function (sessionId, quoteId, storeId, licenses) {
-    let self = this;
-
-    if (typeof quoteId === 'undefined')
-        throw new Exception.MissingArgumentException('quoteId');
-
-    let body = XML.build('shoppingCartOrder', [
-        XML.parts.variable.string('sessionId', this.checkSessionId (sessionId)),
-        XML.parts.variable.int('quoteId', quoteId),
-        XML.parts.variable.string('storeId', storeId),
-        XML.parts.variable.stringArray('licenses', licenses),
-    ]);
-
-    return this.post(body).then(function (result) {
-        //TODO complete cart and check what is result
-        console.log(self.parse(result));
-        //return(self.sessionId = self.parse(body)['ns1:loginResponse'].loginReturn);
-    });
-};
-/**
- *
- * Allows you to retrieve full information about the shopping cart (quote).
- * @param {string} sessionId - Session ID
- * @param {int}	quoteId	- Shopping cart ID (quote ID)
- * @param {string} storeId - Store view ID or code (optional)
- * @return {array} - resolve(), Array of shoppingCartInfoEntity
- */
-Magento19xAPI.prototype.shoppingCartInfo = function (sessionId, quoteId, storeId) {
-    let body = XML.build('shoppingCartInfo', [
-        XML.parts.variable.string('sessionId', this.checkSessionId (sessionId)),
-        XML.parts.variable.int('quoteId', quoteId),
-        XML.parts.variable.string('storeId', storeId)
-    ]);
-
-    return this.post(body).then(result => result['ns1:shoppingCartInfoResponse'].result);
 };
 
 /**
