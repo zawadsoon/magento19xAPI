@@ -6,11 +6,10 @@ module.exports = catalog_category = {
     /**
      * catalogCategoryLevel (SOAP V2)
      * Allows you to retrieve one level of categories by a website, a store view, or a parent category.
-     * {string} sessionId - Session ID
-     * {string} website - Website ID or code (optional)
-     * {string} storeView - Store view ID or code (optional)
-     * {string} parentCategory - Parent category ID (optional)
-     * @return {}
+     * @param {string} sessionId - Session ID
+     * @param {string} website - Website ID or code (optional)
+     * @param {string} storeView - Store view ID or code (optional)
+     * @param {string} parentCategory - Parent category ID (optional)
      */
     catalogCategoryLevel: {
         mandatory: {
@@ -21,6 +20,25 @@ module.exports = catalog_category = {
             'storeView': 'string',
             'parentCategory': 'string',
         },
-        origin: ['']
-    }
+        origin: ['ns1:catalogCategoryLevelResponse', 'tree', 'item']
+    },
+
+    /**
+     * Allows you to retrieve information about the required category.
+     * @param {string} sessionId - Session ID
+     * @param {int} categoryId - Category ID
+     * @param {string} storeView - Store view ID or code (optional)
+     * @param {ArrayOfString} attributes - Array of attributes (optional)
+     */
+    catalogCategoryInfo: {
+        mandatory: {
+            'sessionId': 'string',
+            'categoryId': 'int',
+        },
+        optionals: {
+            'storeView': 'string',
+            'attributes': 'stringArray',
+        },
+        origin: ['ns1:catalogCategoryInfoResponse', 'info']
+    },
 };
