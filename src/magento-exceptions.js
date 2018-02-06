@@ -24,7 +24,7 @@ function MagentoFaultException (faultCode, faultString) {
 }
 
 function MissingMandatoryArgumentException (argument, method) {
-    this.message = "Missing mandatory" + argument + " argument in " + method + " method!";
+    this.message = "Missing mandatory [" + argument + "] argument in [" + method + "] method!";
     this.name = "MissingMandatoryArgumentException";
 }
 
