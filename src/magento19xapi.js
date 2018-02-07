@@ -41,8 +41,10 @@ function Magento19xAPI (apiUrl, headers, middleware, customMethods) {
     this.findNested = function (obj, nestingArray, index) {
         if (nestingArray.length === 0) return obj;
         index = (typeof index === 'undefined') ? 0 : index;
-        return (index ===  nestingArray.length - 1) ? obj[nestingArray[index]] :
-            self.findNested(obj[nestingArray[index]], nestingArray, ++index);
+        if (index ===  nestingArray.length - 1)
+            return (typeof obj[nestingArray[index]] === 'undefined') ? {} : obj[nestingArray[index]];
+        else
+            return self.findNested(obj[nestingArray[index]], nestingArray, ++index);
     };
 
     //Loading resources
