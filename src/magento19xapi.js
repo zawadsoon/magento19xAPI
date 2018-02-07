@@ -124,7 +124,8 @@ Magento19xAPI.prototype.post = function (body, mock) {
 
     if (typeof mock === 'function')
         request = mock();
-    else
+
+    if (request === null)
         request = fetch(this.apiUrl, {
             method: 'POST',
             headers: {...this.headers, 'Content-Length': body.length},
