@@ -1,7 +1,7 @@
 const Exception = require("./magento-exceptions");
 const XML = require("./magento-xml");
 const XMLParse = require("./magento-parser");
-//const fetch = require('node-fetch');
+const fetch = require('node-fetch');
 
 /**
  * Privides method to communicate with Magento 1.9.x SOAP API
@@ -19,6 +19,7 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
     this.lastXML = '';
     this.lastResponse = '';
     this.mocks = {};
+    this.log = false;
 
     if (typeof apiUrl === 'undefined')
         throw new Exception.MissingApiUrlException();
@@ -92,11 +93,17 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
                         xmlItems.push(XML.parts.variable[allArgs[name]](name, args[name]));
                 }
 
+                let debug = {
+                    method: method,
+                    args: args,
+                    response: ''
+                };
+
                 let mock = null;
                 if (typeof self.mocks[method] === 'function')
                     mock = () => { return self.mocks[method](args) };
 
-                return self.post(self.lastXML = XML.build(method, xmlItems), mock).then(function (result) {
+                return self.post(self.lastXML = XML.build(method, xmlItems), mock, debug).then(function (result) {
                     return(self.findNested(result, details.origin));
                 });
             };
@@ -118,12 +125,15 @@ Magento19xAPI.prototype.mockMethods = function (mocks) {
  * @param mock {function} - function that will return content instead of fetch
  * @return {Promise} - fetch result
  */
-Magento19xAPI.prototype.post = function (body, mock) {
+Magento19xAPI.prototype.post = function (body, mock, debug) {
     let self = this;
     let request = null;
 
-    if (typeof mock === 'function')
+    debug.mock = false;
+    if (typeof mock === 'function') {
         request = mock();
+        debug.mock = true;
+    }
 
     if (request === null)
         request = fetch(this.apiUrl, {
@@ -132,7 +142,11 @@ Magento19xAPI.prototype.post = function (body, mock) {
             body: body
         }).then((response) => self.middleware(response).text());
 
-    return request.then((body) => XMLParse(self.lastResponse = body)).then((result) => {
+    return request.then((body) => {
+        debug.response = body;
+        if (self.log) console.log(debug);
+        return body;
+    }).then((body) => XMLParse(body)).then((result) => {
 
         //TODO catch special errors e.g Session Expire
         //Before pass data, check if magento return fault.
@@ -157,7 +171,11 @@ Magento19xAPI.prototype.login = function (apiUser, apiKey) {
     ]);
 
     //Remembering sessionId for future use
-    return this.post(body, null).then(result => self.sessionId = result['ns1:loginResponse'].loginReturn);
+    return this.post(body, null, {
+        method: 'login',
+        args: {apiUser: apiUser, apiKey: apiKey},
+        response: '',
+    }).then(result => self.sessionId = result['ns1:loginResponse'].loginReturn);
 };
 
 module.exports = Magento19xAPI;
