@@ -1,21 +1,22 @@
 const Exception = require("./magento-exceptions");
 const XML = require("./magento-xml");
 const XMLParse = require("./magento-parser");
-
 /**
  * Privides method to communicate with Magento 1.9.x SOAP API
  * @param apiUrl - SOAP API url (without &wsdl=1)
  * @param headers - Additional headers added to request (remember 'Host' property is required)
  * @param middleware - Addidtional function that will be called before response will be passed to parse.
  * Function takes as argument request response and should return this response or throw error.
- * @param customMethods - Defines user custom methods, have to be like this in resources
+ * @param custom - Defines user custom methods, have to be like this in resources
  * @constructor
  */
-function Magento19xAPI (apiUrl, headers, middleware, customMethods) {
+function Magento19xAPI (apiUrl, headers, middleware, custom) {
     let self = this;
 
     //for debug purposes
     this.lastXML = '';
+    this.lastResponse = '';
+    this.mocks = {};
 
     if (typeof apiUrl === 'undefined')
         throw new Exception.MissingApiUrlException();
@@ -53,7 +54,7 @@ function Magento19xAPI (apiUrl, headers, middleware, customMethods) {
         catalog_product: require('./resources/catalog/catalog_product'),
         catalog_product_attribute_media: require('./resources/catalog/catalog_product_attribute_media'),
         checkout_cart: require('./resources/checkout/cart'),
-        custom: customMethods,
+        custom: custom,
     };
 
     //Iterate over methods in resources
@@ -75,6 +76,7 @@ function Magento19xAPI (apiUrl, headers, middleware, customMethods) {
 
                 //Test mandatory arguments
                 for (let name in details.mandatory) {
+                    if (!details.mandatory.hasOwnProperty(name)) continue;
                     if (typeof args[name] === 'undefined')
                         throw new Exception.MissingMandatoryArgumentException(name, method);
                 }
@@ -88,7 +90,11 @@ function Magento19xAPI (apiUrl, headers, middleware, customMethods) {
                         xmlItems.push(XML.parts.variable[allArgs[name]](name, args[name]));
                 }
 
-                return this.post(self.lastXML = XML.build(method, xmlItems)).then(function (result) {
+                let mock = null;
+                if (typeof self.mocks[method] === 'function')
+                    mock = () => { return self.mocks[method](args) };
+
+                return self.post(self.lastXML = XML.build(method, xmlItems), mock).then(function (result) {
                     return(self.findNested(result, details.origin));
                 });
             };
@@ -97,20 +103,34 @@ function Magento19xAPI (apiUrl, headers, middleware, customMethods) {
 }
 
 /**
+ * Set methods mocks
+ * @param mocks - object with function that will replace resources
+ */
+Magento19xAPI.prototype.mockMethods = function (mocks) {
+    this.mocks = mocks;
+};
+
+/**
  * Wrapas fetch method to simplify code
  * @param body {string} - request body
+ * @param mock {function} - function that will return content instead of fetch
  * @return {Promise} - fetch result
  */
-Magento19xAPI.prototype.post = function (body) {
+Magento19xAPI.prototype.post = function (body, mock) {
     let self = this;
+    let request = null;
 
-    return fetch(this.apiUrl, {
-        method: 'POST',
-        headers: {...this.headers, 'Content-Length': body.length},
-        body: body
-    }).then((response) => self.middleware(response).text())
-        .then((body) => XMLParse(body))
-        .then((result) => {
+    if (typeof mock === 'function')
+        request = mock();
+    else
+        request = fetch(this.apiUrl, {
+            method: 'POST',
+            headers: {...this.headers, 'Content-Length': body.length},
+            body: body
+        }).then((response) => self.lastResponse = self.middleware(response).text());
+
+    return request.then((body) => XMLParse(body)).then((result) => {
+
         //TODO catch special errors e.g Session Expire
         //Before pass data, check if magento return fault.
         if (typeof result['SOAP-ENV:Fault'] !== 'undefined')
@@ -134,7 +154,7 @@ Magento19xAPI.prototype.login = function (apiUser, apiKey) {
     ]);
 
     //Remembering sessionId for future use
-    return this.post(body).then(result => self.sessionId = result['ns1:loginResponse'].loginReturn);
+    return this.post(body, null).then(result => self.sessionId = result['ns1:loginResponse'].loginReturn);
 };
 
 module.exports = Magento19xAPI;
