@@ -1,6 +1,8 @@
 const Exception = require("./magento-exceptions");
 const XML = require("./magento-xml");
 const XMLParse = require("./magento-parser");
+//const fetch = require('node-fetch');
+
 /**
  * Privides method to communicate with Magento 1.9.x SOAP API
  * @param apiUrl - SOAP API url (without &wsdl=1)
@@ -127,9 +129,9 @@ Magento19xAPI.prototype.post = function (body, mock) {
             method: 'POST',
             headers: {...this.headers, 'Content-Length': body.length},
             body: body
-        }).then((response) => self.lastResponse = self.middleware(response).text());
+        }).then((response) => self.middleware(response).text());
 
-    return request.then((body) => XMLParse(body)).then((result) => {
+    return request.then((body) => XMLParse(self.lastResponse = body)).then((result) => {
 
         //TODO catch special errors e.g Session Expire
         //Before pass data, check if magento return fault.
