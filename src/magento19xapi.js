@@ -16,6 +16,8 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
     let self = this;
 
     //for debug purposes
+    this.lastXML = '';
+    this.lastResponse = '';
     this.mocks = {};
     this.cache = {};
     this.log = false;
@@ -56,7 +58,6 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
         catalog_product: require('./resources/catalog/catalog_product'),
         catalog_product_attribute_media: require('./resources/catalog/catalog_product_attribute_media'),
         checkout_cart: require('./resources/checkout/cart'),
-        customer_customer: require('./resources/customer/customer'),
         custom: custom,
     };
 
@@ -96,15 +97,14 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
                 let debug = {
                     method: method,
                     args: args,
-                    response: '',
-                    body: ''
+                    response: ''
                 };
 
                 let mock = null;
                 if (typeof self.mocks[method] === 'function')
-                    mock = () => self.mocks[method](args);
+                    mock = () => { return self.mocks[method](args) };
 
-                return self.post(XML.build(method, xmlItems), mock, debug).then(function (result) {
+                return self.post(self.lastXML = XML.build(method, xmlItems), mock, debug).then(function (result) {
                     return(self.findNested(result, details.origin));
                 });
             };
@@ -124,14 +124,13 @@ Magento19xAPI.prototype.mockMethods = function (mocks) {
  * Wrapas fetch method to simplify code
  * @param body {string} - request body
  * @param mock {function} - function that will return content instead of fetch
- * @param debu {object} - additional debug data
  * @return {Promise} - fetch result
  */
 Magento19xAPI.prototype.post = function (body, mock, debug) {
     let self = this;
     let request = null;
 
-    debug.body = body;
+    debug.mock = false;
     if (typeof mock === 'function') {
         request = mock();
         debug.mock = true;

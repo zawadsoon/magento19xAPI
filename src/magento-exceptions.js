@@ -1,5 +1,5 @@
 function MissingSessionIdException () {
-    this.message = "Session Id is missing! Run login() method before or pass sessionId as argument.";
+    this.message = "Session Id is missing! Run login() method befor or pass sessionId as argument.";
     this.name = "MissingSessionIdException";
 }
 
@@ -21,8 +21,6 @@ function MissingArgumentException (argument) {
 function MagentoFaultException (faultCode, faultString) {
     this.message = "Magento returns error. Faultcode: " + faultCode + ", faultstring: " + faultString;
     this.name = "MagentoFaultException";
-    this.faultCode = faultCode;
-    this.faultString = faultString;
 }
 
 function MissingMandatoryArgumentException (argument, method) {
