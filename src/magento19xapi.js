@@ -17,6 +17,7 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
 
     //for debug purposes
     this.mocks = {};
+    this.cache = {};
     this.log = false;
 
     if (typeof apiUrl === 'undefined')
@@ -37,8 +38,8 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
         'Content-Type': 'text/xml;charset=utf-8',
         'Host': '',
         'SOAPAction': "urn:Mage_Api_Model_Server_V2_HandlerAction",
-        ...headers
     };
+    this.headers = Object.assign({}, this.headers, headers);
 
     this.findNested = function (obj, nestingArray, index) {
         if (nestingArray.length === 0) return obj;
@@ -55,6 +56,7 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
         catalog_product: require('./resources/catalog/catalog_product'),
         catalog_product_attribute_media: require('./resources/catalog/catalog_product_attribute_media'),
         checkout_cart: require('./resources/checkout/cart'),
+        checkout_cart_product: require('./resources/checkout/cart_product'),
         customer_customer: require('./resources/customer/customer'),
         custom: custom,
     };
@@ -83,7 +85,7 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
                         throw new Exception.MissingMandatoryArgumentException(name, method);
                 }
 
-                let allArgs = {...details.mandatory, ...details.optionals};
+                let allArgs = Object.assign(details.mandatory, details.optionals);
                 let xmlItems = [];
 
                 //Iterate over all argument and create proper xml type if argument exist
@@ -139,7 +141,7 @@ Magento19xAPI.prototype.post = function (body, mock, debug) {
     if (request === null)
         request = fetch(this.apiUrl, {
             method: 'POST',
-            headers: {...this.headers, 'Content-Length': body.length},
+            headers: Object.assign({}, this.headers, {'Content-Length': body.length}),
             body: body
         }).then((response) => self.middleware(response).text());
 
@@ -178,5 +180,8 @@ Magento19xAPI.prototype.login = function (apiUser, apiKey) {
         response: '',
     }).then(result => self.sessionId = result['ns1:loginResponse'].loginReturn);
 };
+
+//Gives possibility to catch exceptions
+Magento19xAPI.Exception = Exception;
 
 module.exports = Magento19xAPI;
