@@ -1,7 +1,7 @@
 const Exception = require("./magento-exceptions");
 const XML = require("./magento-xml");
 const XMLParse = require("./magento-parser");
-//const fetch = require('node-fetch');
+const fetch = require('node-fetch');
 
 /**
  * Privides method to communicate with Magento 1.9.x SOAP API
@@ -16,8 +16,6 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
     let self = this;
 
     //for debug purposes
-    this.lastXML = '';
-    this.lastResponse = '';
     this.mocks = {};
     this.cache = {};
     this.log = false;
@@ -34,14 +32,13 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
         return obj
     };
 
-    this.headers = {
+    this.headers = Object.assign({}, {
         'Accept-Encoding': 'gzip,deflate',
         'Connection': 'Keep-Alive',
         'Content-Type': 'text/xml;charset=utf-8',
         'Host': '',
-        'SOAPAction': "urn:Mage_Api_Model_Server_V2_HandlerAction",
-        ...headers
-    };
+        'SOAPAction': "urn:Mage_Api_Model_Server_V2_HandlerAction"
+    }, headers);
 
     this.findNested = function (obj, nestingArray, index) {
         if (nestingArray.length === 0) return obj;
@@ -58,6 +55,7 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
         catalog_product: require('./resources/catalog/catalog_product'),
         catalog_product_attribute_media: require('./resources/catalog/catalog_product_attribute_media'),
         checkout_cart: require('./resources/checkout/cart'),
+        checkout_cart_product: require('./resources/checkout/cart_product'),
         custom: custom,
     };
 
@@ -85,7 +83,7 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
                         throw new Exception.MissingMandatoryArgumentException(name, method);
                 }
 
-                let allArgs = {...details.mandatory, ...details.optionals};
+                let allArgs = Object.assign({}, details.mandatory, details.optionals);
                 let xmlItems = [];
 
                 //Iterate over all argument and create proper xml type if argument exist
@@ -139,7 +137,7 @@ Magento19xAPI.prototype.post = function (body, mock, debug) {
     if (request === null)
         request = fetch(this.apiUrl, {
             method: 'POST',
-            headers: {...this.headers, 'Content-Length': body.length},
+            headers: Object.assign({}, this.headers, {'Content-Length': body.length}),
             body: body
         }).then((response) => self.middleware(response).text());
 
