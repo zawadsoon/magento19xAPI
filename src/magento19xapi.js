@@ -17,6 +17,7 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
 
     //for debug purposes
     this.mocks = {};
+    this.cache = {};
     this.log = false;
 
     if (typeof apiUrl === 'undefined')
