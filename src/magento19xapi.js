@@ -85,7 +85,7 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
                         throw new Exception.MissingMandatoryArgumentException(name, method);
                 }
 
-                let allArgs = Object.assign(details.mandatory, details.optionals);
+                let allArgs = Object.assign({}, details.mandatory, details.optionals);
                 let xmlItems = [];
 
                 //Iterate over all argument and create proper xml type if argument exist
