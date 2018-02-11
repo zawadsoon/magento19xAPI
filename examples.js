@@ -11,13 +11,13 @@ magento.login(config.username, config.apiKey).then((sessionId) => {
     return magento.shoppingCartCreate();
 }).then((cartId) => {
     let promises = [];
-    cartId = 240;
+    cartId = 500;
     promises.push(magento.shoppingCartInfo({'quoteId': cartId}));
     promises.push(magento.shoppingCartProductList({'quoteId': cartId}));
     promises.push(magento.shoppingCartProductAdd({'quoteId': cartId, productsData: cartProductDetails('188833338081', 2)}));
     return Promise.all(promises);
 }).then().then((results) => {
-    console.log('Cart:', results[0]);
+    console.log('Cart:', results[0].items.item);
     console.log('List:', results[1]);
     console.log('ID:', results[2]);
 }).catch((error) => {
