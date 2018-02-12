@@ -1,6 +1,6 @@
 {
   "name": "magento19xapi",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "JS connector for magento API",
   "main": "./src/magento19xapi.js",
   "scripts": {

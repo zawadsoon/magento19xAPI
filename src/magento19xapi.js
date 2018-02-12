@@ -56,6 +56,7 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
         catalog_product_attribute_media: require('./resources/catalog/catalog_product_attribute_media'),
         checkout_cart: require('./resources/checkout/cart'),
         checkout_cart_product: require('./resources/checkout/cart_product'),
+        customer_customer: require('./resources/customer/customer'),
         custom: custom,
     };
 
