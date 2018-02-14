@@ -20,7 +20,7 @@ module.exports = cart_product = {
         optionals: {
             'storeId': 'string',
         },
-        origin: []
+        origin: ['ns1:shoppingCartProductAddResponse', 'result']
     },
 
     /**

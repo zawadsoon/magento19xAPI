@@ -21,7 +21,7 @@ module.exports = cart_customer = {
         optionals: {
             store: 'string',
         },
-        origin: [],
+        origin: ['ns1:shoppingCartCustomerSetResponse', 'result'],
     },
 
     /**
@@ -36,7 +36,7 @@ module.exports = cart_customer = {
         mandatory: {
             sessionId: 'string',
             quoteId: 'int',
-            customerDataAddress: 'custom',
+            customerAddressData : 'custom',
         },
         optionals: {
             store: 'string',
