@@ -55,11 +55,13 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
         catalog_product: require('./resources/catalog/catalog_product'),
         catalog_product_attribute_media: require('./resources/catalog/catalog_product_attribute_media'),
         checkout_cart: require('./resources/checkout/cart'),
+        checkout_cart_coupon: require('./resources/checkout/cart_coupons'),
         checkout_cart_product: require('./resources/checkout/cart_product'),
-        checkout_coupon: require('./resources/checkout/cart_product'),
         checkout_cart_customer: require('./resources/checkout/cart_customer'),
         checkout_cart_shipping: require('./resources/checkout/cart_shipping'),
+        checkout_cart_payment: require('./resources/checkout/cart_payment'),
         customer_customer: require('./resources/customer/customer'),
+        customer_address: require('./resources/customer/customer_address'),
         custom: custom,
     };
 
