@@ -1,7 +1,7 @@
 const Exception = require("./magento-exceptions");
 const XML = require("./magento-xml");
 const XMLParse = require("./magento-parser");
-//const fetch = require('node-fetch');
+const fetch = require('node-fetch');
 
 /**
  * Privides method to communicate with Magento 1.9.x SOAP API
@@ -56,6 +56,9 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
         catalog_product_attribute_media: require('./resources/catalog/catalog_product_attribute_media'),
         checkout_cart: require('./resources/checkout/cart'),
         checkout_cart_product: require('./resources/checkout/cart_product'),
+        checkout_coupon: require('./resources/checkout/cart_product'),
+        checkout_cart_customer: require('./resources/checkout/cart_customer'),
+        checkout_cart_shipping: require('./resources/checkout/cart_shipping'),
         customer_customer: require('./resources/customer/customer'),
         custom: custom,
     };

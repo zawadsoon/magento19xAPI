@@ -8,7 +8,7 @@ module.exports = cart_product = {
      * @param {string} sessionId - Session ID
      * @param {int} quoteId - Shopping cart ID (quote ID)
      * @param {custom} productsData - An array with the list of shoppingCartProductEntity
-     * @param {storeId} storeId - Store view ID or code (optional)
+     * @param {string} storeId - Store view ID or code (optional)
      * @return {int} - ID of the created empty shopping cart
      */
     shoppingCartProductAdd: {
