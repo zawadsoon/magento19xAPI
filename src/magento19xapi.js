@@ -1,7 +1,7 @@
 const Exception = require("./magento-exceptions");
 const XML = require("./magento-xml");
 const XMLParse = require("./magento-parser");
-//const fetch = require('node-fetch');
+const fetch = require('node-fetch');
 
 /**
  * Privides method to communicate with Magento 1.9.x SOAP API
@@ -17,6 +17,7 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
 
     //for debug purposes
     this.mocks = {};
+    this.cache = {};
     this.log = false;
 
     if (typeof apiUrl === 'undefined')
@@ -31,14 +32,13 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
         return obj
     };
 
-    this.headers = {
+    this.headers = Object.assign({}, {
         'Accept-Encoding': 'gzip,deflate',
         'Connection': 'Keep-Alive',
         'Content-Type': 'text/xml;charset=utf-8',
         'Host': '',
-        'SOAPAction': "urn:Mage_Api_Model_Server_V2_HandlerAction",
-        ...headers
-    };
+        'SOAPAction': "urn:Mage_Api_Model_Server_V2_HandlerAction"
+    }, headers);
 
     this.findNested = function (obj, nestingArray, index) {
         if (nestingArray.length === 0) return obj;
@@ -55,6 +55,10 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
         catalog_product: require('./resources/catalog/catalog_product'),
         catalog_product_attribute_media: require('./resources/catalog/catalog_product_attribute_media'),
         checkout_cart: require('./resources/checkout/cart'),
+        checkout_cart_product: require('./resources/checkout/cart_product'),
+        checkout_coupon: require('./resources/checkout/cart_product'),
+        checkout_cart_customer: require('./resources/checkout/cart_customer'),
+        checkout_cart_shipping: require('./resources/checkout/cart_shipping'),
         customer_customer: require('./resources/customer/customer'),
         custom: custom,
     };
@@ -83,7 +87,7 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
                         throw new Exception.MissingMandatoryArgumentException(name, method);
                 }
 
-                let allArgs = {...details.mandatory, ...details.optionals};
+                let allArgs = Object.assign({}, details.mandatory, details.optionals);
                 let xmlItems = [];
 
                 //Iterate over all argument and create proper xml type if argument exist
@@ -95,15 +99,14 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
                 let debug = {
                     method: method,
                     args: args,
-                    response: '',
-                    body: ''
+                    response: ''
                 };
 
                 let mock = null;
                 if (typeof self.mocks[method] === 'function')
-                    mock = () => self.mocks[method](args);
+                    mock = () => { return self.mocks[method](args) };
 
-                return self.post(XML.build(method, xmlItems), mock, debug).then(function (result) {
+                return self.post(self.lastXML = XML.build(method, xmlItems), mock, debug).then(function (result) {
                     return(self.findNested(result, details.origin));
                 });
             };
@@ -123,14 +126,13 @@ Magento19xAPI.prototype.mockMethods = function (mocks) {
  * Wrapas fetch method to simplify code
  * @param body {string} - request body
  * @param mock {function} - function that will return content instead of fetch
- * @param debu {object} - additional debug data
  * @return {Promise} - fetch result
  */
 Magento19xAPI.prototype.post = function (body, mock, debug) {
     let self = this;
     let request = null;
 
-    debug.body = body;
+    debug.mock = false;
     if (typeof mock === 'function') {
         request = mock();
         debug.mock = true;
@@ -139,7 +141,7 @@ Magento19xAPI.prototype.post = function (body, mock, debug) {
     if (request === null)
         request = fetch(this.apiUrl, {
             method: 'POST',
-            headers: {...this.headers, 'Content-Length': body.length},
+            headers: Object.assign({}, this.headers, {'Content-Length': body.length}),
             body: body
         }).then((response) => self.middleware(response).text());
 

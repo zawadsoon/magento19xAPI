@@ -29,7 +29,7 @@ module.exports = customer_customer = {
             'customerData': 'custom'
         },
         optionals: {},
-        origin: ['ns1:customerCustomerCreateResponse', 'result']
+        origin: []
     },
 
     /**
