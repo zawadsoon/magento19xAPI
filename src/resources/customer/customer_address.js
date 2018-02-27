@@ -10,13 +10,13 @@ module.exports = customer_address = {
      * @param {int} customerId - Customer ID
      * @return {array} result - Array of customeAddressEntity
      */
-    shoppingCartCustomerSet: {
+    customerAddressList : {
         mandatory: {
             sessionId: 'string',
             customerId: 'int'
         },
         optionals: {},
-        origin: [],
+        origin: ['ns1:customerAddressListResponse', 'result'],
     },
 
     /**

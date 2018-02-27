@@ -6,7 +6,9 @@ let customerId = 17678;
 
 magento.login(config.username, config.apiKey).then((sessionId) => {
     console.log('SessionId:', sessionId);
+
     return magento.customerAddressList({customerId: customerId});
+
 }).then((list) => {
     console.log('Address list: ', list);
 }).catch((error) => {

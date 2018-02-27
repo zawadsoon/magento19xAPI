@@ -1,6 +1,6 @@
-const Exception = require("./magento-exceptions");
-const XML = require("./magento-xml");
-const XMLParse = require("./magento-parser");
+const Exception = require("./exceptions");
+const XML = require("./xml");
+const XMLParse = require("./parser");
 const fetch = require('node-fetch');
 
 /**
@@ -62,6 +62,7 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
         checkout_cart_payment: require('./resources/checkout/cart_payment'),
         customer_customer: require('./resources/customer/customer'),
         customer_address: require('./resources/customer/customer_address'),
+        directory_country: require('./resources/directory/directory_country'),
         custom: custom,
     };
 
@@ -135,6 +136,7 @@ Magento19xAPI.prototype.post = function (body, mock, debug) {
     let request = null;
 
     debug.mock = false;
+    debug.body = body;
     if (typeof mock === 'function') {
         request = mock();
         debug.mock = true;

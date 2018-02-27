@@ -20,7 +20,7 @@ module.exports = cart_product = {
         optionals: {
             storeId: 'string'
         },
-        origin: []
+        origin: ['ns1:shoppingCartShippingMethodResponse', 'result']
     },
 
     /**
@@ -38,7 +38,7 @@ module.exports = cart_product = {
         optionals: {
             storeId: 'string',
         },
-        origin: ['ns1:shoppingCartShippingListResponse', 'result']
+        origin: ['ns1:shoppingCartShippingListResponse', 'result', 'item']
     }
 
 };

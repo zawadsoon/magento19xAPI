@@ -41,7 +41,7 @@ module.exports = cart_customer = {
         optionals: {
             store: 'string',
         },
-        origin: [],
+        origin: ['ns1:shoppingCartCustomerAddressesResponse', 'result'],
     }
 
 };
