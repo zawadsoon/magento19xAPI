@@ -21,7 +21,7 @@ module.exports = cart_payment = {
         optionals: {
             'store': 'string',
         },
-        origin: []
+        origin: ['ns1:shoppingCartPaymentMethodResponse', 'result']
     },
 
     /**
@@ -40,7 +40,7 @@ module.exports = cart_payment = {
         optionals: {
             store: 'string'
         },
-        origin: [],
+        origin: ['ns1:shoppingCartPaymentListResponse', 'result', 'item'],
     }
 
 

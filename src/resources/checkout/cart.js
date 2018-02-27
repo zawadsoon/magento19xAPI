@@ -65,9 +65,9 @@ module.exports = cart = {
         mandatory: {
             'sessionId': 'string',
             'quoteId': 'int',
-            'storeId': 'string',
         },
         optionals: {
+            'storeId': 'string',
             'licenses': 'stringArray'
         },
         origin: []

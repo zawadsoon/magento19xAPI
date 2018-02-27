@@ -28,12 +28,17 @@ function MissingMandatoryArgumentException (argument, method) {
     this.name = "MissingMandatoryArgumentException";
 }
 
+function MyRandomException () {
+    this.message = "This is my random exception.";
+    this.name = "MyRandomException";
+}
+
 module.exports = {
     MissingSessionIdException: MissingSessionIdException,
     MissingApiUrlException: MissingApiUrlException,
     MissingApiHostException: MissingApiHostException,
     MissingArgumentException: MissingArgumentException,
     MagentoFaultException: MagentoFaultException,
-    MissingMandatoryArgumentException: MissingMandatoryArgumentException
-
+    MissingMandatoryArgumentException: MissingMandatoryArgumentException,
+    MyRandomException: MyRandomException,
 };

@@ -29,7 +29,7 @@ module.exports = customer_customer = {
             'customerData': 'custom'
         },
         optionals: {},
-        origin: []
+        origin: ['ns1:customerCustomerCreateResponse', 'result']
     },
 
     /**
@@ -77,6 +77,6 @@ module.exports = customer_customer = {
             'customerId': 'int',
         },
         optionals: {},
-        origin: []
+        origin: ['ns1:customerCustomerDeleteResponse', 'result']
     }
 };
