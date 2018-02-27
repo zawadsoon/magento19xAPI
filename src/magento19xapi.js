@@ -1,7 +1,7 @@
 const Exception = require("./exceptions");
 const XML = require("./xml");
 const XMLParse = require("./parser");
-const fetch = require('node-fetch');
+//const fetch = require('node-fetch');
 
 /**
  * Privides method to communicate with Magento 1.9.x SOAP API
