@@ -70,7 +70,7 @@ module.exports = cart = {
             'storeId': 'string',
             'licenses': 'stringArray'
         },
-        origin: []
+        origin: ['ns1:shoppingCartOrderResponse', 'result']
     },
 
     /**
