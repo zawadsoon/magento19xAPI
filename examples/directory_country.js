@@ -11,8 +11,8 @@ magento.login(config.username, config.apiKey).then((sessionId) => {
     console.log('countries: ', countries);
     let code = countries[(Math.floor(Math.random() * countries.length))].iso3_code;
     return Promise.all([
-        magento.directoryRegionList({country: code}),
-        code
+        magento.directoryRegionList({country: 'DE'}),
+        'DE'
     ]);
 }).then((results) => {
     console.log('regions (' + results[1] + '): ', results[0]);
