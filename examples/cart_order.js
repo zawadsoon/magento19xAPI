@@ -130,7 +130,6 @@ magento.login(config.username, config.apiKey).then((sessionId) => {
 }).then((results) => {
     console.log('totals: ', results[0]);
     console.log('info', results[1]);
-    magento.log = true;
     return magento.shoppingCartOrder({quoteId: orderDetails.cartId});
 }).then((result) => {
     console.log('shoppingCartOrder result: ', result);
