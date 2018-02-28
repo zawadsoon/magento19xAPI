@@ -185,4 +185,6 @@ Magento19xAPI.prototype.login = function (apiUser, apiKey) {
     }).then(result => self.sessionId = result['ns1:loginResponse'].loginReturn);
 };
 
+Magento19xAPI.Entities = require('./entities');
+
 module.exports = Magento19xAPI;
