@@ -33,7 +33,7 @@ function Magento19xAPI (apiUrl, headers, middleware, custom) {
     };
 
     this.headers = Object.assign({}, {
-        'Accept-Encoding': 'gzip,deflate',
+        'Accept-Encoding': 'deflate',
         'Connection': 'Keep-Alive',
         'Content-Type': 'text/xml;charset=utf-8',
         'Host': '',
